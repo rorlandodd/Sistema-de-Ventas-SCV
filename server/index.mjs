@@ -146,6 +146,8 @@ server.headersTimeout=15000;
 
 server.listen(Number(process.env.PORT||3000),process.env.HOST||'127.0.0.1',()=>{
  console.log('Control de ventas 3.02: '+origin);
+ 
+ // Mostrar código de instalación si aplica
  if(!installed()){
   try{
    const codigoPath=resolve(process.env.DATA_DIR||resolve(root,'data'),'codigo-instalacion.txt');
@@ -156,6 +158,22 @@ server.listen(Number(process.env.PORT||3000),process.env.HOST||'127.0.0.1',()=>{
   }catch(e){
    console.log('⚠️ Primera instalación: el archivo de código se está generando en data/.');
   }
+ }
+
+ // --- AUTO-RELOADER PARA MANTENER ACTIVO EL SERVIDOR ---
+ const targetUrl = process.env.APP_URL;
+ if (targetUrl && !targetUrl.includes('localhost') && !targetUrl.includes('127.0.0.1')) {
+  const interval = 30000; // 30 segundos
+  setInterval(() => {
+   fetch(targetUrl)
+    .then(response => {
+     console.log(`[Auto-Ping] Recargado a las ${new Date().toISOString()}: Código ${response.status}`);
+    })
+    .catch(error => {
+     console.error(`[Auto-Ping] Error a las ${new Date().toISOString()}:`, error.message);
+    });
+  }, interval);
+  console.log(`🚀 Sistema de auto-ping activado para: ${targetUrl}`);
  }
 });
 
