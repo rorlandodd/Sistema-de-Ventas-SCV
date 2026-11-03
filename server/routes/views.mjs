@@ -1,0 +1,44 @@
+import { env } from '../storage.mjs';
+const scopes = ['Ventas', 'Catálogo', 'Informes de ventas'];
+const fail = (error, status = 400) => Response.json({ error }, { status });
+async function list(uid, scope) { const r = await env.DB.prepare('SELECT id,name,filters FROM saved_views WHERE user_id=? AND scope=? ORDER BY name').bind(uid, scope).all(); return r.results.map((v) => ({ ...v, filters: JSON.parse(v.filters) })); }
+export async function GET(req) { const uid = req.headers.get('oai-authenticated-user-id'); if (!uid)
+    return fail('Inicia sesión.', 401); const scope = new URL(req.url).searchParams.get('scope') || ''; if (!scopes.includes(scope))
+    return fail('Sección inválida.'); try {
+    return Response.json({ views: await list(uid, scope) }, { headers: { 'Cache-Control': 'no-store' } });
+}
+catch {
+    return fail('No se pudieron cargar las vistas.', 500);
+} }
+export async function POST(req) { const uid = req.headers.get('oai-authenticated-user-id'); if (!uid)
+    return fail('Inicia sesión.', 401); if (req.headers.get('origin') && req.headers.get('origin') !== new URL(req.url).origin)
+    return fail('Origen inválido.', 403); try {
+    const d = await req.json();
+    if (!scopes.includes(d.scope))
+        return fail('Sección inválida.');
+    if (d.action === 'delete') {
+        if (typeof d.id !== 'string')
+            return fail('Vista inválida.');
+        await env.DB.prepare('DELETE FROM saved_views WHERE id=? AND user_id=? AND scope=?').bind(d.id, uid, d.scope).run();
+    }
+    else if (d.action === 'save') {
+        if (typeof d.name !== 'string' || !d.name.trim() || d.name.length > 60 || !d.filters || typeof d.filters !== 'object')
+            return fail('Escribe un nombre de hasta 60 caracteres.');
+        const filters = {};
+        for (const key of ['query', 'shop', 'type', 'brand', 'model', 'channel', 'from', 'to', 'catalogChannel', 'sortField', 'mode', 'warranty', 'seller', 'minTotal', 'maxTotal', 'salesSort']) {
+            const val = d.filters[key] ?? '';
+            if (typeof val !== 'string' || val.length > 250)
+                return fail('Filtro inválido.');
+            filters[key] = val;
+        }
+        if ((await list(uid, d.scope)).length >= 30)
+            return fail('Puedes guardar hasta 30 vistas por sección. Elimina una para agregar otra.');
+        await env.DB.prepare('INSERT INTO saved_views(id,user_id,scope,name,filters) VALUES(?,?,?,?,?)').bind(crypto.randomUUID(), uid, d.scope, d.name.trim(), JSON.stringify(filters)).run();
+    }
+    else
+        return fail('Acción inválida.');
+    return Response.json({ views: await list(uid, d.scope) });
+}
+catch {
+    return fail('No se pudo guardar la vista.', 500);
+} }

@@ -1,0 +1,7 @@
+'use client';
+import {useEffect,useRef,useState} from 'react';
+export default function PhotoViewer({src,alt,onClose}:{src:string;alt:string;onClose:()=>void}){
+ const [zoom,setZoom]=useState(1);const close=useRef<HTMLButtonElement>(null);
+ useEffect(()=>{const previous=document.activeElement as HTMLElement;close.current?.focus();return()=>previous?.focus()},[]);
+ return <div className="photozoom" onClick={e=>{if(e.target===e.currentTarget)onClose()}} onKeyDown={e=>{if(e.key==='Escape'){e.stopPropagation();onClose()}if(e.key==='Tab'){const buttons=Array.from(e.currentTarget.querySelectorAll('button'));const first=buttons[0],last=buttons[buttons.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}}} role="dialog" aria-modal="true" aria-label="Ampliar fotografía"><div className="zoomtoolbar"><button onClick={()=>setZoom(Math.max(1,zoom-.5))} disabled={zoom<=1} aria-label="Reducir foto">−</button><span>{Math.round(zoom*100)}%</span><button onClick={()=>setZoom(Math.min(4,zoom+.5))} disabled={zoom>=4} aria-label="Ampliar foto">+</button><button onClick={()=>setZoom(1)}>Ajustar</button><button ref={close} onClick={onClose}>Cerrar foto</button></div><div className="zoomcanvas"><img src={src} alt={alt} style={{width:zoom*100+'%',height:zoom*100+'%',maxWidth:'none',objectFit:'contain'}}/></div><p>Usa + y − para ampliar. Desplázate para ver los detalles. Esc para cerrar.</p></div>;
+}

@@ -1,0 +1,15 @@
+[Unit]
+Description=Control de ventas 3.02
+After=network.target
+[Service]
+Type=simple
+User=ventas
+Group=ventas
+WorkingDirectory=/opt/control-ventas
+EnvironmentFile=/opt/control-ventas/.env
+ExecStart=/usr/bin/node server/index.mjs
+Restart=on-failure
+UMask=0077
+NoNewPrivileges=true
+[Install]
+WantedBy=multi-user.target

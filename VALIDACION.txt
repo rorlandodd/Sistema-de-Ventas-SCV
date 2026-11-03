@@ -1,0 +1,24 @@
+VERIFICACIONES DEL PAQUETE
+
+Ejecutadas contra un servidor Node.js 24 y una base SQLite temporal desechable:
+- instalación inicial con código privado, usuario, correo y contraseña repetida;
+- rechazo de contraseña no coincidente y código incorrecto;
+- bloqueo del formulario inicial después de crear el administrador;
+- inicio/cierre de sesión y rechazo de identidad falsificada por cabeceras externas;
+- cookies HttpOnly y SameSite, Secure al usar APP_URL HTTPS;
+- acceso de datos exige una clave temporal de pestaña, no persistida;
+- sin esa clave, una nueva carga del sistema vuelve a pedir credenciales;
+- creación de cuentas normales solo por administrador;
+- cuentas normales sin acceso al listado administrativo;
+- preferencias personales de usuario normal sin cambiar configuración de empresa;
+- guardado de catálogo, tienda, ventas, garantías e imágenes;
+- rechazo de origen incorrecto y protección de archivos de base contra acceso web;
+- datos e imágenes conservados al reiniciar el proceso;
+- cierre de sesión revoca el acceso;
+- archivo database/ventas-vacia.sqlite sin cuentas, sesiones ni datos de prueba;
+- fuentes y recursos del cliente precompilados, servidor ejecutable sin instalar npm.
+
+Los ejemplos Docker, proxy HTTPS, systemd, Windows y paneles se incluyen como guías.
+No se probaron dentro de tu proveedor ni con tu dominio, certificado o firewall.
+La base actual y los archivos privados del sitio en línea no están incorporados:
+consulta ESTADO_DE_LA_COPIA.txt.

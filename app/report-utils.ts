@@ -1,0 +1,17 @@
+import {warrantySummary} from './warranty-utils';
+export const money=(n:number)=>new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(n||0);
+export const saleHeaders=['Fecha','Tienda','Tipo','Marca','Modelo','Unidades','Canal','Total CLP'];
+export function saleRows(sales:any[],stores:any[]){return sales.map(s=>[s.date,stores.find(t=>t.id===s.storeId)?.name||'Tienda',s.type,s.brand,s.model,s.units,s.channel,s.total]);}
+export function sortProducts(products:any[],field:string,direction:string){const sign=direction==='desc'?-1:1;return [...products].sort((a,b)=>sign*(String(a[field]||'').localeCompare(String(b[field]||''),'es',{sensitivity:'base',numeric:true})||String(a.model||'').localeCompare(String(b.model||''),'es',{sensitivity:'base',numeric:true})||String(a.code).localeCompare(String(b.code),'es',{numeric:true})));}
+export type Group={label:string;units:number;total:number;count:number};
+export function groupSales(rows:any[],key:(s:any)=>string):Group[]{const result=new Map<string,Group>();for(const s of rows){const label=key(s)||'Sin definir';const row=result.get(label)||{label,units:0,total:0,count:0};row.units+=s.units;row.total+=s.total;row.count++;result.set(label,row);}return [...result.values()].sort((a,b)=>b.total-a.total||a.label.localeCompare(b.label,'es'));}
+export function monthlyReport(sales:any[],month:string,shop:string,goals:any,today:string){
+ const rows=sales.filter(s=>!s.deletedAt&&s.date.startsWith(month)&&(!shop||s.storeId===shop)).sort((a,b)=>a.date.localeCompare(b.date)||String(a.id).localeCompare(String(b.id)));
+ const total=rows.reduce((n,s)=>n+s.total,0),units=rows.reduce((n,s)=>n+s.units,0),target=goals[month+'|'+(shop||'all')]||0;
+ const days=new Date(Number(month.slice(0,4)),Number(month.slice(5)),0).getDate();const elapsed=month===today.slice(0,7)?Number(today.slice(8)):month<today.slice(0,7)?days:0;
+ let cumulative=0;const daily=Array.from({length:days},(_,i)=>{const amount=rows.filter(s=>Number(s.date.slice(8))===i+1).reduce((n,s)=>n+s.total,0);cumulative+=amount;return {day:i+1,amount,cumulative,goal:target*(i+1)/days};});
+ const channels=groupSales(rows,s=>s.channel);for(const name of ['P1','P3'])if(!channels.some(g=>g.label===name))channels.push({label:name,units:0,total:0,count:0});
+ const modes=groupSales(rows,s=>s.mode==='Caja'?'Tienda (caja)':s.mode==='Kiosco'?'Kiosco':s.mode);for(const name of ['Tienda (caja)','Kiosco'])if(!modes.some(g=>g.label===name))modes.push({label:name,units:0,total:0,count:0});
+ const warrantyUnits=rows.filter(s=>s.warranty).reduce((n,s)=>n+s.units,0),p1Units=rows.filter(s=>s.channel==='P1').reduce((n,s)=>n+s.units,0);
+ return {warranty:warrantySummary(sales,month,shop,goals,today),warrantyByUnits:warrantySummary(sales,month,shop,goals,today,'units'),month,rows,total,units,target,days,elapsed,daily,channels,modes,warrantyUnits,p1Units,progress:target?total/target*100:null,remaining:target?Math.max(0,target-total):null,projection:elapsed?Math.round(rows.filter(s=>s.date<=today).reduce((n,s)=>n+s.total,0)/elapsed*days):0,brands:groupSales(rows,s=>s.brand),models:groupSales(rows,s=>s.brand+' · '+s.model),types:groupSales(rows,s=>s.type),warranties:[{label:'Con garantía extendida',units:warrantyUnits,total:rows.filter(s=>s.warranty).reduce((n,s)=>n+s.total,0),count:rows.filter(s=>s.warranty).length},{label:'Sin garantía extendida',units:units-warrantyUnits,total:rows.filter(s=>!s.warranty).reduce((n,s)=>n+s.total,0),count:rows.filter(s=>!s.warranty).length}]};
+}

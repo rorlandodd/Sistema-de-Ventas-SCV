@@ -1,0 +1,33 @@
+PROMPT — CONTROL DE VENTAS 3.02 PARA SERVIDOR PROPIO
+
+Usa el código incluido como fuente de verdad para conservar exactamente la interfaz. Un prompt por sí solo no garantiza los mismos píxeles: conserva los archivos, CSS, logos y componentes de este paquete. No conectes con datos ni servicios privados del sistema original.
+
+Crear/mantener una aplicación web de control de ventas en español de Chile, moneda CLP sin decimales y zona America/Santiago. React/TypeScript para interfaz; Node.js 24 para servidor, SQLite en disco y carpeta privada para fotos/boletas. Desplegable en dominio/subdominio propio mediante Docker o Node con proxy HTTPS. Entregar código, versión compilada, base SQLite vacía, esquema SQL, documentación y pruebas. No incluir datos reales ni contraseñas predeterminadas.
+
+PRIMER INGRESO Y ACCESO
+La primera pantalla es Crear administrador: código de instalación de un solo uso generado en el servidor, usuario, correo, contraseña y repetición. Validar igualdad y mínimo 12 caracteres. Crear atómicamente un único primer administrador y bloquear la instalación después. Luego mostrar login de usuario/contraseña. Hash scrypt con sal, cookies HttpOnly/SameSite/Secure, sesiones revocables con vencimiento, límites de intentos, protección de origen y autenticación en todas las APIs privadas. No confiar en cabeceras de identidad enviadas por el cliente. Administradores pueden crear otras cuentas, desactivarlas y restablecer contraseñas; vendedores trabajan con ventas/catálogo. Ajustes globales y cuentas solo para administradores.
+
+GENERAL
+Menú General, Ventas, Catálogo, Garantías e Informes de ventas. Selector de tienda persistente y mes. Meta monetaria editable por mes/tienda, ventas totales, unidades, falta, avance y proyección por días calendario. Gráfico de venta diaria. Ventas por tipo de producto siempre de mayor a menor monto CLP. Detalle mensual y últimas ventas.
+
+VENTAS
+Alta por código identificador o escáner. Reconocer producto, permitir crearlo si falta y volver a la venta. Fecha, tienda, unidades enteras positivas, valor unitario CLP, canal P1/P3 tomado del producto y modo Caja/Kiosco. P3 no permite garantía extendida. Si P1 incluye garantía pedir monto total de garantía mayor a cero, separado del total de productos. Foto de boleta opcional JPG/PNG/WebP hasta 5 MB. Editar/eliminar ventas; guardar snapshot de producto para mantener historial aunque se modifique/elimine del catálogo. Borrado lógico excluido de informes. Tabla con búsqueda y filtros de tipo/marca/modelo y acceso a boleta. Editar/eliminar mediante iconos accesibles.
+
+CATÁLOGO
+Código único, tipo, marca, modelo, P1/P3, hasta tres fotos, altura, ancho, profundidad, peso, litros, detalles. No guardar precio unitario en producto; precio manual al vender. Marcas Electrolux/Mademsa/Fensa. Tipos Refrigerador, Cocina, Lavadora, Freezer, Frigobar, Campana de cocina, Encimera y Otros. Buscar/filtrar tipo/modelo/marca y ordenar tipo/marca/modelo A–Z/Z–A.
+Ficha técnica al pulsar código/modelo. Logo pequeño arriba a la derecha según marca configurada. Barcode CODE128 derivado del código. Zoom fotos con +/− y desplazamiento, cierre con Esc. Impresión y PDF A4 horizontal, fotos grandes en fila ocupando primera página y especificaciones en la siguiente; mantener proporción. Firma comercial configurable. WhatsApp comparte PDF+texto por Web Share cuando esté disponible; fallback claro a descarga y adjunto manual. Correo mailto con asunto Ficha técnica de [marca modelo], breve texto y firma, indicando adjuntar PDF. Exportar catálogos/listados a Excel y PDF.
+
+GARANTÍAS
+Meta porcentual por mes/tienda y base por monto o unidades. Base incluye P1 en Caja y cualquier venta con garantía; excluir P3/Kiosco sin garantía. Numerador monto de garantías o unidades garantizadas. Kiosco con garantía suma. Mostrar lista de productos con garantía, dinero, unidades, avance, brecha, evolución y proyección. Fechas futuras no inflan proyección. Datos antiguos sin monto se marcan pendientes/parciales, nunca inventar valores.
+
+INFORMES
+Listado con fecha, tienda, tipo, marca, modelo, unidades, canal y total, total CLP al pie. Búsqueda y filtros fecha/marca/modelo/tipo/canal/tienda. Exportar PDF/Excel e imprimir. Informe mensual completo solo se genera en PDF al solicitarlo; no mostrar el informe completo/gráficos en pantalla. PDF con gráficos, garantías, P1/P3, Caja/Kiosco, marca/modelo/tipo, metas, proyección y listado de productos vendidos con total final.
+
+AJUSTES 3.02
+Icono junto al tema claro/oscuro. Ventana con Empresa (nombre/logo), Usuarios (nombre/correo/teléfono/cargo y selección de firma por cuenta) y Marcas (logos asociados a cada marca del catálogo). Guardar todas las secciones con un botón; validar datos y prevenir sobrescritura silenciosa por cambios concurrentes. Perfiles comerciales no equivalen a cuentas de acceso; explicar diferencia. Datos configurados aparecen en PDFs, Excel, correos y WhatsApp. Footer Versión 3.02 con enlace a una ventana de notas vacía. Mantener iconos de tamaño de letra y tema, diseño responsive, formularios accesibles, ayudas de iconos y modo impresión.
+
+PERSISTENCIA Y ENTREGA
+SQLite en DATA_DIR/ventas.sqlite, archivos en DATA_DIR/uploads. Nada privado bajo carpeta web pública. Base entregada con tablas y cero filas. Sin dependencias en ejecución aparte de Node.js 24 (interfaz y rutas ya compiladas). Incluir Dockerfile/Compose/Caddy, ejemplo .env, servicio systemd/Nginx, scripts init-db/backup, guía paso a paso para subir, conectar automáticamente SQLite, crear admin, dominio/HTTPS, reinicio, respaldo/restauración y actualización. Pruebas HTTP de auth, permisos, CSRF, CRUD, imágenes y persistencia. Mantener esta copia separada del sistema original en línea.
+
+ACTUALIZACIÓN DE ESTA DESCARGA:
+Conservar filtros avanzados, vistas por cuenta, seis paletas, menú oculto en todos los tamaños, jerarquías por tienda con detección de ciclos y organigrama PDF. Usar Node.js 24, SQLite y almacenamiento local privado. Primer administrador protegido por código de instalación; cuentas normales creadas por administrador. Scrypt con sal, cookies HttpOnly/SameSite y clave efímera en memoria por pestaña: abrir/recargar exige credenciales. No usar autenticación ChatGPT. Los administradores controlan las configuraciones compartidas y las cuentas; los usuarios normales personalizan su apariencia/navegación/firma y realizan operaciones comerciales. El paquete inicial está vacío: no inventar registros ni credenciales. Mantener el código de inicio y las bases fuera de la carpeta pública.

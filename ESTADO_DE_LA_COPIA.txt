@@ -1,0 +1,20 @@
+CONTROL DE VENTAS — PAQUETE INDEPENDIENTE PARA SERVIDOR PROPIO
+
+Incluye el código fuente actualizado y la aplicación compilada con los últimos filtros,
+jerarquías, PDF, seis paletas de color y menú oculto en todos los dispositivos.
+
+BASE INCLUIDA: database/ventas-vacia.sqlite
+Estructura completa SQLite, sin ventas, productos, tiendas, cuentas, contraseñas ni sesiones.
+El primer acceso permite crear el administrador usando el código privado generado al arrancar.
+
+DATOS ACTUALES DEL SITIO EN LÍNEA: NO INCLUIDOS EN ESTE PAQUETE.
+La exportación completa necesita terminar la verificación de acceso de Google/ChatGPT.
+No se incluyó una lectura parcial con campos recortados como si fuera un respaldo válido.
+Las fotos, boletas y logos personalizados del sitio tampoco están incluidos.
+Sí se incluyen los logos predeterminados Electrolux, Mademsa y Fensa.
+
+Puedes instalar desde cero ahora. La guía explica cómo importar una exportación JSON
+posteriormente, usando una carpeta DATA_DIR nueva; ese JSON tampoco incorpora los archivos
+binarios de imágenes. Una copia íntegra con datos y archivos debe verificarse por separado.
+
+El sistema que sigue en línea no fue modificado para preparar esta descarga.

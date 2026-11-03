@@ -1,0 +1,7 @@
+import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';import {resolve,dirname} from 'node:path';import {fileURLToPath} from 'node:url';import ts from 'typescript';import {build} from 'vite';import react from '@vitejs/plugin-react';
+const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');process.chdir(root);mkdirSync('server/routes',{recursive:true});
+const compile=(input,output,replace=[])=>{let source=readFileSync(input,'utf8');for(const [a,b] of replace)source=source.replaceAll(a,b);writeFileSync(output,ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText)};
+for(const name of ['product-utils','seller-utils','preferences'])compile('app/'+name+'.ts','server/'+name+'.mjs');
+compile('app/settings-utils.ts','server/settings-utils.mjs',[["'./product-utils'","'./product-utils.mjs'"]]);
+for(const [path,name] of [['data','data'],['photos','photos'],['photos/[id]','photo'],['receipts','receipts'],['receipts/[id]','receipt'],['settings','settings'],['views','views'],['branding','branding']])compile('app/api/'+path+'/route.ts','server/routes/'+name+'.mjs',[["'@portable/storage'","'../storage.mjs'"],["'../../product-utils'","'../product-utils.mjs'"],["'../../settings-utils'","'../settings-utils.mjs'"],["'../../seller-utils'","'../seller-utils.mjs'"],["'../../preferences'","'../preferences.mjs'"]]);
+await build({root,configFile:false,plugins:[react()],build:{outDir:'dist',emptyOutDir:true},publicDir:'public'});console.log('Aplicación compilada. Para ejecutar: npm start');
